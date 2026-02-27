@@ -1,0 +1,2663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sullivan's Island — Municipal Asset Registry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #1b3a5c;
+    --navy-dk: #0f2338;
+    --teal:    #2e7d72;
+    --teal-lt: #4aab9e;
+    --sand:    #c9a96e;
+    --sand-lt: #e8d9bb;
+    --cream:   #f7f2e8;
+    --white:   #ffffff;
+    --coral:   #c85a3a;
+    --coral-lt:#f0ebe4;
+    --text:    #1e2d3d;
+    --text-md: #3d5068;
+    --text-lt: #6b7f92;
+    --border:  #d8cdb8;
+    --success: #2a7a4f;
+    --warn:    #a06020;
+    --info:    #1b5c8a;
+    --shadow:  0 2px 12px rgba(27,58,92,0.10);
+    --shadow-lg: 0 8px 32px rgba(27,58,92,0.14);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy-dk);
+    color: var(--white);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.35);
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 0;
+    flex-shrink: 0;
+  }
+  .brand-seal {
+    width: 44px;
+    height: 44px;
+    background: var(--sand);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .brand-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+  .brand-text p {
+    font-size: 11px;
+    color: var(--sand-lt);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+  nav {
+    display: flex;
+    gap: 2px;
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.65);
+    padding: 8px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.18s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  nav button:hover { background: rgba(255,255,255,0.1); color: var(--white); }
+  nav button.active { background: var(--teal); color: var(--white); }
+  nav button .badge {
+    background: var(--coral);
+    color: white;
+    border-radius: 10px;
+    font-size: 10px;
+    padding: 1px 6px;
+    font-weight: 600;
+  }
+
+  /* ── LAYOUT ── */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+  }
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.22s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+  /* ── PAGE HEADERS ── */
+  .page-header {
+    margin-bottom: 28px;
+    border-bottom: 2px solid var(--sand-lt);
+    padding-bottom: 20px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .page-header-left h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.15;
+  }
+  .page-header-left p {
+    color: var(--text-lt);
+    font-size: 14px;
+    margin-top: 5px;
+    font-style: italic;
+  }
+
+  /* ── FILTERS ── */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .filter-bar input, .filter-bar select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .filter-bar input { min-width: 220px; flex: 1; }
+  .filter-bar input:focus, .filter-bar select:focus { border-color: var(--teal); }
+
+  /* ── ASSET GRID ── */
+  .asset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
+  }
+  .asset-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+  .asset-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); border-color: var(--teal-lt); }
+  .asset-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .asset-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .cat-buildings  { background: #e8f0f8; }
+  .cat-infra      { background: #e8f5f3; }
+  .cat-parks      { background: #e8f5ec; }
+  .cat-beach      { background: #e8f4fb; }
+  .cat-natural    { background: #f0f5e8; }
+  .cat-protected  { background: #fdf5e8; }
+  .cat-historic   { background: #f5ece8; }
+  .cat-other      { background: #f0f0f0; }
+
+  .asset-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .status-good       { background: #d4f0e0; color: #1a5c35; }
+  .status-attention  { background: #fde8d8; color: #8a3010; }
+  .status-monitor    { background: #fdf5d0; color: #6b5000; }
+
+  .asset-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.3;
+  }
+  .asset-card .asset-location {
+    font-size: 12px;
+    color: var(--text-lt);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .asset-card .asset-desc {
+    font-size: 13px;
+    color: var(--text-md);
+    margin-top: 10px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .asset-card-footer {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .cat-tag {
+    font-size: 11px;
+    color: var(--text-lt);
+    background: var(--cream);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .open-issues-count {
+    font-size: 12px;
+    color: var(--coral);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.17s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-lt); }
+  .btn-navy { background: var(--navy); color: white; }
+  .btn-navy:hover { background: var(--navy-dk); }
+  .btn-outline { background: white; color: var(--navy); border: 1.5px solid var(--navy); }
+  .btn-outline:hover { background: var(--cream); }
+  .btn-coral { background: var(--coral); color: white; }
+  .btn-coral:hover { background: #a04028; }
+  .btn-sm { font-size: 12px; padding: 6px 12px; }
+  .btn-success { background: var(--success); color: white; }
+
+  /* ── FORMS ── */
+  .form-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: var(--shadow);
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .form-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .form-card .form-sub {
+    font-size: 14px;
+    color: var(--text-lt);
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+  .form-group { margin-bottom: 20px; }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+  }
+  .form-group .hint {
+    font-size: 12px;
+    color: var(--text-lt);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    background: var(--cream);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--teal);
+    background: var(--white);
+  }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+  .privacy-note {
+    background: #f0f5fb;
+    border: 1px solid #b8d0e8;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--info);
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+
+  /* ── SUCCESS BANNER ── */
+  .success-banner {
+    background: #d8f0e4;
+    border: 1.5px solid #8dd4b0;
+    border-radius: 12px;
+    padding: 20px 24px;
+    color: #1a5c35;
+    text-align: center;
+    display: none;
+  }
+  .success-banner.show { display: block; animation: fadeIn 0.3s ease; }
+  .success-banner h4 { font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 6px; }
+  .success-banner p { font-size: 14px; }
+
+  /* ── ISSUES LIST ── */
+  .issues-stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .stat-chip {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    text-align: center;
+    min-width: 100px;
+    box-shadow: var(--shadow);
+  }
+  .stat-chip .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--navy);
+    display: block;
+  }
+  .stat-chip .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-lt);
+    font-weight: 600;
+  }
+  .stat-chip.s-pending    { border-color: #f0c080; }
+  .stat-chip.s-review     { border-color: #80b0d8; }
+  .stat-chip.s-scheduled  { border-color: #80c8a0; }
+  .stat-chip.s-completed  { border-color: #60a870; }
+  .stat-chip.s-closed     { border-color: #b0b0b0; }
+
+  .issue-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s;
+  }
+  .issue-card:hover { box-shadow: var(--shadow-lg); }
+  .issue-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .issue-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .issue-asset-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .issue-type-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .type-maintenance  { background: #fff0e0; color: #804010; }
+  .type-cleaning     { background: #e0f8f0; color: #106040; }
+  .type-safety       { background: #ffe0e0; color: #800020; }
+  .type-vandalism    { background: #f0e0ff; color: #500080; }
+  .type-other        { background: #f0f0f0; color: #404040; }
+  .type-improvement  { background: #e0f0ff; color: #104080; }
+
+  .issue-status-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .is-pending    { background: #fde8c0; color: #7a4a00; }
+  .is-review     { background: #d8ecf8; color: #0a3a6a; }
+  .is-scheduled  { background: #d8f4e8; color: #0a4020; }
+  .is-completed  { background: #c8ecd8; color: #0a4020; }
+  .is-closed     { background: #e8e8e8; color: #404040; }
+
+  .issue-description {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+  .issue-meta {
+    font-size: 12px;
+    color: var(--text-lt);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .issue-meta span { display: flex; align-items: center; gap: 4px; }
+
+  .staff-response {
+    background: #f0f8f4;
+    border-left: 3px solid var(--teal);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+    margin-top: 12px;
+  }
+  .staff-response-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--teal);
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .staff-response p {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .awaiting-response {
+    font-size: 12px;
+    color: var(--text-lt);
+    font-style: italic;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ── ME TOO ── */
+  .issue-actions {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .metoo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-md);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .metoo-btn:hover { background: #fdf0e8; border-color: var(--sand); color: var(--navy); }
+  .metoo-btn.voted { background: #fff4e8; border-color: var(--sand); color: var(--warn); }
+  .metoo-btn .metoo-count {
+    background: var(--navy);
+    color: white;
+    border-radius: 10px;
+    font-size: 11px;
+    padding: 1px 7px;
+    font-weight: 700;
+  }
+  .metoo-btn.voted .metoo-count { background: var(--warn); }
+  .metoo-pulse {
+    animation: metooPop 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes metooPop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+  .view-comments-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--teal);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.15s;
+  }
+  .view-comments-btn:hover { color: var(--navy); }
+
+  /* Me Too submission panel */
+  .metoo-panel {
+    display: none;
+    background: #f8f5f0;
+    border: 1.5px solid var(--sand-lt);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 12px;
+    animation: fadeIn 0.2s ease;
+  }
+  .metoo-panel.open { display: block; }
+  .metoo-panel h5 {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+  .metoo-panel input, .metoo-panel textarea {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 8px 11px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    color: var(--text);
+    outline: none;
+    margin-bottom: 8px;
+    transition: border-color 0.15s;
+  }
+  .metoo-panel input:focus, .metoo-panel textarea:focus { border-color: var(--teal); }
+  .metoo-panel textarea { resize: none; height: 70px; }
+  .metoo-panel-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* Comment thread */
+  .comments-thread {
+    display: none;
+    margin-top: 12px;
+    border-left: 3px solid var(--sand-lt);
+    padding-left: 14px;
+  }
+  .comments-thread.open { display: block; animation: fadeIn 0.2s ease; }
+  .comments-thread-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--sand);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .comment-item {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    animation: fadeIn 0.2s ease;
+  }
+  .comment-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    gap: 8px;
+  }
+  .comment-author {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .comment-date {
+    font-size: 11px;
+    color: var(--text-lt);
+  }
+  .comment-text {
+    font-size: 13px;
+    color: var(--text-md);
+    line-height: 1.5;
+  }
+  .anon-label {
+    font-style: italic;
+    color: var(--text-lt);
+  }
+
+  /* ── STAFF VIEW ── */
+  .staff-login {
+    max-width: 420px;
+    margin: 40px auto;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+  }
+  .staff-login .lock-icon { font-size: 48px; margin-bottom: 16px; }
+  .staff-login h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .staff-login p { font-size: 14px; color: var(--text-lt); margin-bottom: 24px; }
+  .staff-login input {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 11px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    text-align: center;
+    letter-spacing: 0.1em;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.15s;
+  }
+  .staff-login input:focus { border-color: var(--teal); }
+  .login-error { font-size: 13px; color: var(--coral); margin-top: 8px; display: none; }
+  .demo-hint {
+    font-size: 12px;
+    color: var(--text-lt);
+    background: var(--cream);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-top: 16px;
+    border: 1px solid var(--border);
+  }
+
+  .staff-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .staff-toolbar h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--navy);
+  }
+
+  .staff-issue-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+  .staff-issue-card .contact-info {
+    background: #f8f8f8;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text-md);
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 16px;
+  }
+  .contact-info .ci-label { font-weight: 600; color: var(--text-lt); font-size: 12px; }
+
+  .response-form {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .response-form textarea {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.15s;
+    background: var(--cream);
+  }
+  .response-form textarea:focus { border-color: var(--teal); background: white; }
+  .response-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .response-row select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+    background: var(--cream);
+    transition: border-color 0.15s;
+  }
+  .response-row select:focus { border-color: var(--teal); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,35,56,0.6);
+    z-index: 200;
+    backdrop-filter: blur(2px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+  .modal {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(20px); opacity:0; } to { transform: none; opacity:1; } }
+  .modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 12px;
+  }
+  .modal-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--navy);
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--text-lt);
+    padding: 0;
+    transition: color 0.15s;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .modal-close:hover { color: var(--coral); }
+  .modal-asset-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-desc {
+    font-size: 14px;
+    color: var(--text-md);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .modal-features {
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 13px;
+    color: var(--text-md);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .modal-features strong {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-lt);
+    margin-bottom: 4px;
+  }
+
+  /* ── WAVE DIVIDER ── */
+  .wave-bg {
+    background: var(--navy);
+    color: white;
+    padding: 16px 24px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .wave-bg::before {
+    content: '';
+    position: absolute;
+    bottom: -8px; left: -20px; right: -20px;
+    height: 30px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 30'%3E%3Cpath d='M0,15 C300,30 600,0 900,15 C1050,22 1150,10 1200,15 L1200,30 L0,30 Z' fill='%23f7f2e8'/%3E%3C/svg%3E") center/cover;
+  }
+  .wave-bg h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .wave-bg p { font-size: 13px; opacity: 0.8; }
+
+  /* ── MISC ── */
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-lt);
+    font-style: italic;
+  }
+  .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--cream); color: var(--text-lt); }
+
+  @media (max-width: 700px) {
+    .header-inner { flex-wrap: wrap; padding: 10px 16px; }
+    nav { flex-wrap: wrap; }
+    .form-row { grid-template-columns: 1fr; }
+    .page-header { flex-direction: column; align-items: flex-start; }
+    .modal { padding: 20px; }
+    nav button { font-size: 12px; padding: 7px 10px; }
+  }
+
+  /* ── SUGGEST ASSET / ADD ASSET ── */
+  .suggest-banner {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%);
+    color: white;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    box-shadow: var(--shadow-lg);
+  }
+  .suggest-banner-text h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    margin-bottom: 3px;
+  }
+  .suggest-banner-text p { font-size: 13px; opacity: 0.85; }
+
+  /* Full-screen modal for suggest/add asset */
+  .asset-form-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,35,56,0.65);
+    z-index: 300;
+    backdrop-filter: blur(3px);
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 20px;
+    overflow-y: auto;
+  }
+  .asset-form-modal.open { display: flex; animation: fadeIn 0.2s ease; }
+  .asset-form-inner {
+    background: var(--white);
+    border-radius: 18px;
+    padding: 36px;
+    max-width: 700px;
+    width: 100%;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+    animation: slideUp 0.25s ease;
+    margin: auto;
+  }
+  .asset-form-inner h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .asset-form-inner .form-sub {
+    color: var(--text-lt);
+    font-size: 13px;
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+  .icon-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .icon-picker button {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--cream);
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon-picker button:hover, .icon-picker button.selected {
+    background: var(--teal);
+    border-color: var(--teal);
+    transform: scale(1.15);
+  }
+  .icon-preview {
+    font-size: 28px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  /* Pending suggestions in staff */
+  .suggestions-section {
+    margin-bottom: 32px;
+  }
+  .suggestions-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .suggestions-section p {
+    font-size: 13px;
+    color: var(--text-lt);
+    margin-bottom: 16px;
+  }
+  .suggestion-card {
+    background: var(--white);
+    border: 1.5px solid var(--sand-lt);
+    border-left: 4px solid var(--sand);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+  .suggestion-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .suggestion-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .suggestion-source {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .source-citizen { background: #e8f0f8; color: #1b3a5c; }
+  .source-staff   { background: #d8f4e8; color: #0a4020; }
+
+  .suggestion-details {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 16px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    background: var(--cream);
+    border-radius: 8px;
+  }
+  .suggestion-details .sd-label { font-weight: 600; color: var(--text-lt); font-size: 12px; }
+
+  .suggestion-edit-form {
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+    margin-top: 14px;
+  }
+  .suggestion-edit-form h5 {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--teal);
+    margin-bottom: 10px;
+  }
+  .suggestion-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 12px;
+  }
+
+  /* Custom asset badge on cards */
+  .custom-asset-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: linear-gradient(135deg, var(--teal), var(--navy));
+    color: white;
+    padding: 2px 7px;
+    border-radius: 8px;
+    display: inline-block;
+  }
+
+  /* Staff tab switcher inside staff dashboard */
+  .staff-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 4px;
+    width: fit-content;
+    border: 1.5px solid var(--border);
+  }
+  .staff-tab-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 7px;
+    border: none;
+    cursor: pointer;
+    background: none;
+    color: var(--text-lt);
+    transition: all 0.17s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .staff-tab-btn:hover { background: white; color: var(--text); }
+  .staff-tab-btn.active { background: var(--navy); color: white; }
+  .staff-tab-btn .badge {
+    background: var(--coral);
+    color: white;
+    border-radius: 10px;
+    font-size: 10px;
+    padding: 1px 6px;
+    font-weight: 600;
+  }
+  .staff-tab-panel { display: none; }
+  .staff-tab-panel.active { display: block; animation: fadeIn 0.2s ease; }
+
+
+  /* ── ASSET MANAGER (staff reorder + delete) ── */
+  .asset-manager-list { display: flex; flex-direction: column; gap: 10px; }
+  .asset-manager-row {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s, opacity 0.2s;
+    cursor: grab;
+    user-select: none;
+  }
+  .asset-manager-row:active { cursor: grabbing; }
+  .asset-manager-row.dragging {
+    opacity: 0.45;
+    box-shadow: none;
+    border-style: dashed;
+  }
+  .asset-manager-row.drag-over {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 2px var(--teal-lt);
+  }
+  .drag-handle {
+    color: var(--text-lt);
+    font-size: 18px;
+    cursor: grab;
+    flex-shrink: 0;
+    line-height: 1;
+    padding: 0 2px;
+  }
+  .asset-manager-row .row-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .asset-manager-row .row-info { flex: 1; min-width: 0; }
+  .asset-manager-row .row-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .asset-manager-row .row-meta {
+    font-size: 11px;
+    color: var(--text-lt);
+    margin-top: 2px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .asset-manager-row .row-badge {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .badge-builtin  { background: #e8f0f8; color: #1b3a5c; }
+  .badge-staff    { background: #d8f4e8; color: #0a4020; }
+  .badge-citizen  { background: #fdf5d0; color: #6b5000; }
+  .asset-manager-row .row-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+  .delete-asset-btn {
+    background: none;
+    border: 1.5px solid transparent;
+    border-radius: 6px;
+    color: var(--text-lt);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 7px;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+  .delete-asset-btn:hover {
+    background: #fff0ee;
+    border-color: var(--coral);
+    color: var(--coral);
+  }
+  .row-order-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-lt);
+    width: 22px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .save-order-bar {
+    display: none;
+    background: var(--teal);
+    color: white;
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    animation: fadeIn 0.2s ease;
+  }
+  .save-order-bar.show { display: flex; }
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-seal">⚓</div>
+      <div class="brand-text">
+        <h1>Sullivan's Island</h1>
+        <p>Municipal Asset Registry</p>
+      </div>
+    </div>
+    <nav>
+      <button class="active" onclick="showView('assets')" id="nav-assets">🗺 Asset Registry</button>
+      <button onclick="showView('submit')" id="nav-submit">📋 Submit Request</button>
+      <button onclick="showView('public')" id="nav-public">📣 Community Issues</button>
+      <button onclick="showView('staff')" id="nav-staff">🔒 Staff Portal <span class="badge" id="pending-badge" style="display:none">0</span></button>
+    </nav>
+  </div>
+</header>
+
+<div id="app-loading" style="display:flex;position:fixed;inset:0;background:var(--navy-dk);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:20px;color:white;transition:opacity 0.4s">
+  <div style="font-size:56px;animation:anchorBob 1.8s ease-in-out infinite">⚓</div>
+  <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;letter-spacing:0.02em">Sullivan's Island</div>
+  <div style="font-size:13px;opacity:0.65;letter-spacing:0.1em;text-transform:uppercase">Connecting to live database…</div>
+  <div id="loading-error" style="display:none;background:rgba(200,90,58,0.25);border:1px solid #c85a3a;border-radius:10px;padding:14px 20px;font-size:13px;max-width:360px;text-align:center;margin-top:8px;line-height:1.5"></div>
+</div>
+<style>
+  @keyframes anchorBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .toast-msg{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:500;box-shadow:0 4px 20px rgba(0,0,0,0.3);animation:fadeIn .2s ease;pointer-events:none}
+</style>
+
+<main>
+
+  <!-- ───────────── VIEW: ASSETS ───────────── -->
+  <div class="view active" id="view-assets">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Town Asset Registry</h2>
+        <p id="asset-count-label">All 26 municipal assets — buildings, parks, infrastructure &amp; protected areas</p>
+      </div>
+      <button class="btn btn-primary" onclick="showView('submit')">➕ Submit a Request</button>
+    </div>
+    <div class="suggest-banner">
+      <div class="suggest-banner-text">
+        <h4>🗺 Know a town asset that's missing from this list?</h4>
+        <p>Citizens and community members can suggest additions — town staff will review and approve.</p>
+      </div>
+      <button class="btn btn-primary" onclick="openSuggestModal(false)">➕ Suggest an Asset</button>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="asset-search" placeholder="🔍  Search assets by name or location…" oninput="renderAssets()">
+      <select id="asset-cat-filter" onchange="renderAssets()">
+        <option value="">All Categories</option>
+        <option value="Buildings">Municipal Buildings</option>
+        <option value="Infrastructure">Infrastructure</option>
+        <option value="Parks">Parks &amp; Recreation</option>
+        <option value="Beach">Beach Access</option>
+        <option value="Natural">Natural Spaces</option>
+        <option value="Protected">Protected Areas</option>
+        <option value="Historic">Historic Sites</option>
+      </select>
+      <select id="asset-status-filter" onchange="renderAssets()">
+        <option value="">All Statuses</option>
+        <option value="Good">Good Standing</option>
+        <option value="Attention">Needs Attention</option>
+        <option value="Monitor">Monitor</option>
+      </select>
+    </div>
+    <div class="asset-grid" id="asset-grid"></div>
+  </div>
+
+  <!-- ───────────── VIEW: SUBMIT ───────────── -->
+  <div class="view" id="view-submit">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Submit a Request</h2>
+        <p>Report maintenance needs, cleaning, safety hazards, or suggest improvements</p>
+      </div>
+    </div>
+    <div class="success-banner" id="submit-success">
+      <h4>✅ Request Submitted!</h4>
+      <p>Thank you for helping maintain Sullivan's Island. Your request has been logged and will be reviewed by town staff. You'll receive updates at the email you provided.</p>
+      <br><button class="btn btn-outline" onclick="resetSubmitForm()">Submit Another Request</button>
+    </div>
+    <div class="form-card" id="submit-form-wrap">
+      <h3>Citizen Maintenance Request</h3>
+      <p class="form-sub">Help us keep the island's assets in great condition — your input goes directly to the right department.</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Your Name <span class="hint">(required)</span></label>
+          <input type="text" id="f-name" placeholder="Jane Smith">
+        </div>
+        <div class="form-group">
+          <label>Email Address <span class="hint">(required)</span></label>
+          <input type="email" id="f-email" placeholder="jane@example.com">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Phone <span class="hint">(optional — for follow-up)</span></label>
+        <input type="tel" id="f-phone" placeholder="(843) 555-0100">
+      </div>
+      <div class="form-group">
+        <label>Asset / Location <span class="hint">(required)</span></label>
+        <select id="f-asset">
+          <option value="">— Select an asset —</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Issue Type <span class="hint">(required)</span></label>
+          <select id="f-type">
+            <option value="">— Select type —</option>
+            <option value="Maintenance">🔧 Maintenance / Repair</option>
+            <option value="Cleaning">🧹 Cleaning / Debris</option>
+            <option value="Safety">⚠️ Safety Hazard</option>
+            <option value="Vandalism">🚨 Vandalism / Graffiti</option>
+            <option value="Improvement">💡 Improvement Suggestion</option>
+            <option value="Other">📌 Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priority <span class="hint">(your assessment)</span></label>
+          <select id="f-priority">
+            <option value="Normal">Normal</option>
+            <option value="High">High — affects safety or access</option>
+            <option value="Low">Low — cosmetic / minor</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description <span class="hint">(required — be as specific as possible)</span></label>
+        <textarea id="f-desc" placeholder="Describe the issue: exact location within the asset, what you observed, and any safety concerns…"></textarea>
+      </div>
+      <div class="privacy-note">
+        🔒 <strong>Privacy:</strong> Your name, email, and phone are only visible to town staff. The public community issues board will show the issue description and status, but not your personal contact information.
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="resetSubmitForm()">Clear</button>
+        <button class="btn btn-primary" onclick="submitRequest()">📤 Submit Request</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────── VIEW: PUBLIC ISSUES ───────────── -->
+  <div class="view" id="view-public">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Community Issues Board</h2>
+        <p>Full public transparency — all submitted requests and town responses</p>
+      </div>
+    </div>
+    <div class="issues-stats" id="public-stats"></div>
+    <div class="filter-bar">
+      <input type="text" id="pub-search" placeholder="🔍  Search issues…" oninput="renderPublicIssues()">
+      <select id="pub-status" onchange="renderPublicIssues()">
+        <option value="">All Statuses</option>
+        <option value="Pending">⏳ Pending</option>
+        <option value="Under Review">🔍 Under Review</option>
+        <option value="Scheduled">📅 Scheduled</option>
+        <option value="Completed">✅ Completed</option>
+        <option value="Closed">🔒 Closed</option>
+      </select>
+      <select id="pub-type" onchange="renderPublicIssues()">
+        <option value="">All Types</option>
+        <option value="Maintenance">Maintenance</option>
+        <option value="Cleaning">Cleaning</option>
+        <option value="Safety">Safety Hazard</option>
+        <option value="Vandalism">Vandalism</option>
+        <option value="Improvement">Improvement</option>
+        <option value="Other">Other</option>
+      </select>
+      <select id="pub-sort" onchange="renderPublicIssues()">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="status">By Status</option>
+        <option value="popular">Most Me Toos</option>
+      </select>
+    </div>
+    <div id="public-issues-list"></div>
+    <div class="privacy-note" style="max-width:600px">
+      🔒 <strong>Privacy Notice:</strong> Submitter names and contact information are withheld from this public view. Only issue details and town staff responses are displayed. This board is updated in real time as staff respond to requests.
+    </div>
+  </div>
+
+  <!-- ───────────── VIEW: STAFF ───────────── -->
+  <div class="view" id="view-staff">
+    <!-- Login screen -->
+    <div id="staff-login-screen">
+      <div class="staff-login">
+        <div class="lock-icon">🔐</div>
+        <h3>Staff Portal</h3>
+        <p>Restricted access for authorized Sullivan's Island town employees only.</p>
+        <input type="password" id="staff-pwd" placeholder="Enter password" onkeydown="if(event.key==='Enter')staffLogin()">
+        <button class="btn btn-navy" style="width:100%" onclick="staffLogin()">Sign In</button>
+        <div class="login-error" id="login-error">Incorrect password. Please try again.</div>
+        <div class="demo-hint">Staff password required. Contact the Town Administrator.</div>
+      </div>
+    </div>
+
+    <!-- Staff dashboard -->
+    <div id="staff-dashboard" style="display:none">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Staff Dashboard</h2>
+          <p>Manage citizen requests, update statuses, and post official responses</p>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline btn-sm" onclick="staffLogout()">Sign Out</button>
+        </div>
+      </div>
+      <div class="issues-stats" id="staff-stats"></div>
+
+      <!-- Staff Tabs -->
+      <div class="staff-tabs">
+        <button class="staff-tab-btn active" id="stab-requests" onclick="switchStaffTab('requests')">📋 Citizen Requests</button>
+        <button class="staff-tab-btn" id="stab-suggestions" onclick="switchStaffTab('suggestions')">🗺 Asset Suggestions <span class="badge" id="suggestions-badge" style="display:none">0</span></button>
+        <button class="staff-tab-btn" id="stab-assets" onclick="switchStaffTab('assets')">⚙️ Manage Assets</button>
+      </div>
+
+      <!-- Tab: Citizen Requests -->
+      <div class="staff-tab-panel active" id="staffpanel-requests">
+      <div class="staff-toolbar">
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <input type="text" id="staff-search" placeholder="🔍  Search requests…" oninput="renderStaffIssues()"
+            style="font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;background:white;outline:none;min-width:220px">
+          <select id="staff-filter" onchange="renderStaffIssues()"
+            style="font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;background:white;outline:none">
+            <option value="">All Statuses</option>
+            <option value="Pending">⏳ Pending</option>
+            <option value="Under Review">🔍 Under Review</option>
+            <option value="Scheduled">📅 Scheduled</option>
+            <option value="Completed">✅ Completed</option>
+            <option value="Closed">🔒 Closed</option>
+          </select>
+        </div>
+      </div>
+      <div id="staff-issues-list"></div>
+      </div><!-- /staff-toolbar -->
+      </div><!-- /staffpanel-requests -->
+
+      <!-- Tab: Asset Suggestions -->
+      <div class="staff-tab-panel" id="staffpanel-suggestions">
+        <div class="suggestions-section">
+          <h3>Pending Asset Suggestions</h3>
+          <p>Review, edit, and approve or reject citizen-submitted asset suggestions. Approved assets are immediately added to the public registry.</p>
+          <div id="suggestions-list"></div>
+        </div>
+      </div>
+
+      <!-- Tab: Manage Assets -->
+      <div class="staff-tab-panel" id="staffpanel-assets">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+          <div>
+            <h3 style="font-family:'Playfair Display',serif;font-size:20px;color:var(--navy)">Asset Registry Management</h3>
+            <p style="font-size:13px;color:var(--text-lt);margin-top:3px">Add assets, drag to reorder, or remove any asset from the public registry</p>
+          </div>
+          <button class="btn btn-navy" onclick="openSuggestModal(true)">➕ Add Asset Directly</button>
+        </div>
+        <div class="save-order-bar" id="save-order-bar">
+          ↕ Drag rows to reorder — click Save when done
+          <button class="btn btn-primary btn-sm" onclick="saveAssetOrder()">💾 Save Order</button>
+        </div>
+        <div class="asset-manager-list" id="custom-assets-list"></div>
+      </div>
+
+    </div><!-- /staff-dashboard -->
+  </div><!-- /view-staff -->
+
+
+<!-- ───────────── SUGGEST / ADD ASSET MODAL ───────────── -->
+<div class="asset-form-modal" id="suggest-modal" onclick="closeSuggestModal(event)">
+  <div class="asset-form-inner">
+    <div class="modal-header">
+      <div>
+        <h3 id="suggest-modal-title">Suggest a New Asset</h3>
+        <p class="form-sub" id="suggest-modal-sub">Your suggestion will be reviewed by town staff before appearing in the registry.</p>
+      </div>
+      <button class="modal-close" onclick="closeSuggestModal()">&times;</button>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Asset Name <span class="hint">(required)</span></label>
+        <input type="text" id="sa-name" placeholder="e.g. Rear Beach Parking Lot">
+      </div>
+      <div class="form-group">
+        <label>Category <span class="hint">(required)</span></label>
+        <select id="sa-cat">
+          <option value="">— Select category —</option>
+          <option value="Buildings">Municipal Buildings</option>
+          <option value="Infrastructure">Infrastructure</option>
+          <option value="Parks">Parks &amp; Recreation</option>
+          <option value="Beach">Beach Access</option>
+          <option value="Natural">Natural Spaces</option>
+          <option value="Protected">Protected Areas</option>
+          <option value="Historic">Historic Sites</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Location / Address <span class="hint">(required)</span></label>
+      <input type="text" id="sa-location" placeholder="e.g. Station 28, east end of Middle Street">
+    </div>
+
+    <div class="form-group">
+      <label>Icon <span class="hint">(pick one)</span></label>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <span class="icon-preview" id="sa-icon-preview">🏛</span>
+        <input type="text" id="sa-icon-input" value="🏛" maxlength="2"
+          style="width:60px;font-size:22px;text-align:center;padding:6px;border:1.5px solid var(--border);border-radius:8px;outline:none"
+          oninput="document.getElementById('sa-icon-preview').textContent=this.value||'🏛'">
+        <span style="font-size:12px;color:var(--text-lt)">or pick:</span>
+      </div>
+      <div class="icon-picker" id="icon-picker-grid"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Description <span class="hint">(required)</span></label>
+      <textarea id="sa-desc" placeholder="Describe this asset — what it is, who uses it, and why it matters to the community…" style="min-height:90px"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Features &amp; Amenities <span class="hint">(optional — comma separated)</span></label>
+      <input type="text" id="sa-features" placeholder="e.g. Parking · Picnic tables · Boat ramp · ADA access">
+    </div>
+
+    <div class="form-group" id="sa-submitter-fields">
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label>Your Name <span class="hint">(required for suggestions)</span></label>
+          <input type="text" id="sa-subname" placeholder="Jane Smith">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label>Your Email <span class="hint">(for updates)</span></label>
+          <input type="email" id="sa-subemail" placeholder="jane@example.com">
+        </div>
+      </div>
+    </div>
+
+    <div class="privacy-note" id="sa-privacy-note">
+      🔒 Your name and email are only visible to town staff and will not appear in the public registry.
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeSuggestModal()">Cancel</button>
+      <button class="btn btn-primary" id="sa-submit-btn" onclick="submitAssetSuggestion()">📤 Submit Suggestion</button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ───────────── ASSET DETAIL MODAL ───────────── -->
+<div class="modal-overlay" id="asset-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3 id="modal-title"></h3>
+        <div id="modal-meta" class="modal-asset-meta"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <p class="modal-desc" id="modal-desc"></p>
+    <div class="modal-features" id="modal-features"></div>
+    <div id="modal-issues-list" style="margin-bottom:16px"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal()">Close</button>
+      <button class="btn btn-primary" id="modal-report-btn">📋 Submit a Request for This Asset</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════════════════
+
+const ASSETS = [
+  // BUILDINGS
+  { id:'a1',  cat:'Buildings',   icon:'🏛',  status:'Good',      name:'Town Hall Complex',             location:'2056 Middle Street',              desc:'Main municipal hub housing administration, municipal court, police department, water/sewer department, and the fire station.',  features:'Administration offices · Municipal court · Police department · Water & Sewer dept · Fire station' },
+  { id:'a2',  cat:'Buildings',   icon:'🚒',  status:'Good',      name:'Fire Station',                  location:'Municipal Complex, Middle Street', desc:'Sullivan\'s Island fire station co-located within the Town Hall Complex.',                                                       features:'Fire apparatus · Emergency response · Public safety infrastructure' },
+  { id:'a3',  cat:'Buildings',   icon:'🏚',  status:'Attention', name:'Old Town Hall Building',        location:'Middle Street',                   desc:'Historic structure currently listed for potential renovation or demolition. Flagged for ongoing evaluation.',                        features:'Renovation review · Demolition consideration · Historic assessment' },
+  { id:'a4',  cat:'Buildings',   icon:'🏗',  status:'Monitor',   name:'Water & Sewer Infrastructure',  location:'Island-wide',                     desc:'Island-wide water and sewer system infrastructure including lines, pumping stations, and treatment facilities.',                  features:'Water mains · Sewer lines · Pump stations · Treatment facilities' },
+  // INFRASTRUCTURE
+  { id:'a5',  cat:'Infrastructure', icon:'🌉', status:'Good',   name:'Cove Inlet Bridge',             location:'Cove Inlet',                      desc:'Town-managed bridge providing access over Cove Inlet. Subject to regular inspection and maintenance.',                             features:'Vehicular crossing · Pedestrian rails · Regular inspections' },
+  { id:'a6',  cat:'Infrastructure', icon:'🛤', status:'Good',   name:'Town-Owned Streets & ROW',      location:'Island-wide',                     desc:'Municipal street network and rights-of-way managed by the town, including parking and access easements.',                          features:'Paved streets · Unpaved access roads · Parking areas · Easements' },
+  { id:'a7',  cat:'Infrastructure', icon:'🚶', status:'Good',   name:'Breach Inlet Walkway',          location:'Breach Inlet',                    desc:'Public walkway providing pedestrian access at Breach Inlet between Sullivan\'s Island and Isle of Palms.',                        features:'Paved path · Scenic overlook · Tidal access' },
+  { id:'a8',  cat:'Infrastructure', icon:'🚦', status:'Good',   name:'Streetlights & Crosswalks',     location:'Island-wide',                     desc:'Town-maintained streetlighting and marked pedestrian crosswalks throughout the island.',                                          features:'Street lighting · Marked crosswalks · Pedestrian safety' },
+  // PARKS
+  { id:'a9',  cat:'Parks',       icon:'⚽',  status:'Good',      name:'J. Marshall Stith Park',        location:'Middle Street Recreation Area',   desc:'Sullivan\'s Island\'s main recreation center offering a full array of outdoor facilities for all ages.',                          features:'Soccer fields · Tennis courts · Basketball courts · Volleyball court · Playground · Gazebo' },
+  { id:'a10', cat:'Parks',       icon:'🎾',  status:'Good',      name:'Poe Avenue Park',               location:'Station 17 & Poe Avenue',         desc:'Neighborhood park featuring tennis and recreational facilities, named for its proximity to the historic Poe area.',               features:'Tennis courts · Playground · Open green space' },
+  { id:'a11', cat:'Parks',       icon:'🌊',  status:'Good',      name:'Thomson Park (Breach Inlet)',   location:'Breach Inlet',                    desc:'Beachfront park with seating areas and direct beach access at Breach Inlet, popular for fishing and wildlife viewing.',             features:'Park benches · Beach access · Scenic inlet views · Wildlife observation' },
+  { id:'a12', cat:'Parks',       icon:'🌿',  status:'Good',      name:'Sullivan\'s Island Nature Trail',location:'Charleston Light to Fort Moultrie',desc:'2-mile maritime forest trail connecting the Charleston Light to Fort Moultrie through pristine maritime forest.',               features:'2-mile trail · Maritime forest · Historic connections · Wildlife habitat' },
+  { id:'a13', cat:'Parks',       icon:'🌅',  status:'Good',      name:'Sunrise Park',                  location:'East Beach area',                 desc:'Small beachside park providing sunrise views and passive recreation near the east end of the island.',                            features:'Open lawn · Sunrise views · Passive recreation' },
+  { id:'a14', cat:'Parks',       icon:'🌱',  status:'Good',      name:'Community Garden',              location:'Middle Street area',              desc:'Town-supported community garden area for residents to cultivate plots and engage with sustainable living.',                        features:'Garden plots · Composting area · Community gathering' },
+  { id:'a15', cat:'Parks',       icon:'⛺',  status:'Good',      name:'Stith Park Gazebo',             location:'J. Marshall Stith Park',          desc:'Covered gazebo within Stith Park used for events, shade, and community gatherings.',                                              features:'Covered structure · Event use · Picnic area' },
+  // BEACH
+  { id:'a16', cat:'Beach',       icon:'🏖',  status:'Good',      name:'Public Beach Access Points',    location:'Multiple stations, island-wide',  desc:'Town-maintained public beach access pathways at numbered stations along the oceanfront, providing pedestrian access to the beach.', features:'Station access ramps · ADA pathways · Beach mat access · Dune walkovers' },
+  { id:'a17', cat:'Beach',       icon:'🏄',  status:'Good',      name:'Station 22½ Beach Access',      location:'Station 22½',                    desc:'Dedicated beach access point at Station 22½ providing public access to the Atlantic Ocean shoreline.',                             features:'Parking · Dune walkover · ADA access · Lifeguard area' },
+  // NATURAL
+  { id:'a18', cat:'Natural',     icon:'🌾',  status:'Monitor',   name:'Accreted Land',                 location:'Old high water mark to current MHW', desc:'Extensive land accreted between the old high water mark and the current mean high water mark, managed by the town for habitat and shoreline integrity.', features:'Coastal habitat · Shoreline management · Dune vegetation · Wildlife corridor' },
+  { id:'a19', cat:'Natural',     icon:'🌊',  status:'Good',      name:'Marshall Boulevard Beachfront', location:'Marshall Boulevard',              desc:'Protected natural beachfront space along Marshall Boulevard maintained for passive recreation and coastal ecology.',                   features:'Natural shoreline · Beach grass · Passive recreation · Protected vegetation' },
+  // PROTECTED
+  { id:'a20', cat:'Protected',   icon:'🚧',  status:'Good',      name:'Old Dump at Station 19',        location:'Station 19',                      desc:'Environmentally protected former dump site, now managed to prevent ecological disturbance and ensure public safety.',               features:'Protected perimeter · Environmental monitoring · Access restriction' },
+  { id:'a21', cat:'Protected',   icon:'🏗',  status:'Good',      name:'Old Pitt Street Bridge Landing',location:'Station 9',                       desc:'Historic bridge landing at Station 9, now a protected area managed for heritage preservation and habitat.',                         features:'Historic structure remnant · Protected habitat · Passive viewing' },
+  // HISTORIC
+  { id:'a22', cat:'Historic',    icon:'⚓',  status:'Attention', name:'Battery Logan',                 location:'Southwest corner of island',      desc:'Historic Civil War-era artillery battery under active management for vegetation control and habitat rehabilitation. Flagged for ongoing work.', features:'Historic fortification · Vegetation management · Habitat rehabilitation · Educational value' },
+  // OTHER
+  { id:'a23', cat:'Other',       icon:'🅿',  status:'Good',      name:'Town Parking Areas',            location:'Various station locations',       desc:'Town-owned and managed public parking areas at various station locations throughout the island.',                                   features:'Metered parking · Seasonal management · ADA spaces · Access control' },
+  { id:'a24', cat:'Other',       icon:'⛵',  status:'Good',      name:'Waterway Access Points',        location:'Cove Inlet & interior waterways', desc:'Public access points to tidal waterways for kayaking, fishing, and passive water recreation.',                                     features:'Kayak launch · Fishing access · Tidal observation' },
+  { id:'a25', cat:'Other',       icon:'🪑',  status:'Good',      name:'Street Furniture & Signage',    location:'Island-wide',                     desc:'Town-owned benches, waste receptacles, signage, and street furniture distributed throughout the island.',                          features:'Park benches · Waste bins · Wayfinding signs · Historic markers' },
+  { id:'a26', cat:'Other',       icon:'🚿',  status:'Good',      name:'Public Beach Showers & Facilities', location:'Beach access stations',       desc:'Outdoor rinse showers and restroom facilities at key beach access points.',                                                       features:'Outdoor showers · Restrooms · ADA access · Seasonal operation' },
+];
+
+// ════════════════════════════════════════════════════════
+//  SUPABASE — Live shared database
+// ════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://bhjbygtrchvlxathivrl.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_vEsslqY1a-eK_dAb2RxeKg_-LfgTYX3';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession:      false,   // don't postMessage session data — fixes DataCloneError
+    autoRefreshToken:    false,   // no auth tokens to refresh
+    detectSessionInUrl:  false,   // no OAuth redirects
+  }
+});
+
+let ISSUES = [], CUSTOM_ASSETS = [], SUGGESTIONS = [];
+let staffLoggedIn = false;
+
+// ── Row mappers: DB (snake_case) ↔ App (camelCase) ──
+function issueFromDb(r) {
+  return { id:r.id, assetId:r.asset_id, assetName:r.asset_name, type:r.type,
+    priority:r.priority, status:r.status, date:r.date, desc:r.desc,
+    response:r.response||'', responsedBy:r.responded_by||'', responseDate:r.response_date||'',
+    submitterName:r.submitter_name, submitterEmail:r.submitter_email,
+    submitterPhone:r.submitter_phone||'', meToos:r.me_toos||[] };
+}
+function issueToDb(i) {
+  return { id:i.id, asset_id:i.assetId, asset_name:i.assetName, type:i.type,
+    priority:i.priority, status:i.status, date:i.date, desc:i.desc,
+    response:i.response||'', responded_by:i.responsedBy||'', response_date:i.responseDate||'',
+    submitter_name:i.submitterName, submitter_email:i.submitterEmail,
+    submitter_phone:i.submitterPhone||'', me_toos:i.meToos||[] };
+}
+function assetFromDb(r) {
+  return { id:r.id, cat:r.cat, icon:r.icon, status:r.status||'Good', name:r.name,
+    location:r.location, desc:r.description, features:r.features||'',
+    addedBy:r.added_by||'', addedDate:r.added_date||'', isCustom:true, source:r.source||'citizen' };
+}
+function assetToDb(a) {
+  return { id:a.id, cat:a.cat, icon:a.icon, status:a.status||'Good', name:a.name,
+    location:a.location, description:a.desc, features:a.features||'',
+    added_by:a.addedBy||'', added_date:a.addedDate||'', is_custom:true, source:a.source||'citizen' };
+}
+function suggFromDb(r) {
+  return { id:r.id, cat:r.cat, icon:r.icon, name:r.name, location:r.location,
+    desc:r.description, features:r.features||'', submitterName:r.submitter_name,
+    submitterEmail:r.submitter_email, date:r.date, status:r.status, source:r.source||'citizen' };
+}
+function suggToDb(s) {
+  return { id:s.id, cat:s.cat, icon:s.icon, name:s.name, location:s.location,
+    description:s.desc, features:s.features||'', submitter_name:s.submitterName,
+    submitter_email:s.submitterEmail, date:s.date, status:s.status||'Pending', source:s.source||'citizen' };
+}
+
+// ── Bulk loader ──
+async function loadAllData() {
+  const [ir, ar, sr] = await Promise.all([
+    sb.from('issues').select('*').order('created_at', { ascending: false }),
+    sb.from('custom_assets').select('*').order('created_at', { ascending: false }),
+    sb.from('suggestions').select('*').order('created_at', { ascending: false }),
+  ]);
+  if (ir.error) throw new Error('Issues: ' + ir.error.message);
+  if (ar.error) throw new Error('Assets: ' + ar.error.message);
+  if (sr.error) throw new Error('Suggestions: ' + sr.error.message);
+  ISSUES        = (ir.data||[]).map(issueFromDb);
+  CUSTOM_ASSETS = (ar.data||[]).map(assetFromDb);
+  SUGGESTIONS   = (sr.data||[]).map(suggFromDb);
+}
+
+// ── Realtime — all visitors see changes instantly ──
+function subscribeRealtime() {
+  sb.channel('si-live')
+    .on('postgres_changes', { event:'*', schema:'public', table:'issues' }, async () => {
+      const { data } = await sb.from('issues').select('*').order('created_at',{ascending:false});
+      ISSUES = (data||[]).map(issueFromDb);
+      if (document.getElementById('view-public').classList.contains('active')) renderPublicIssues();
+      if (staffLoggedIn && document.getElementById('view-staff').classList.contains('active')) renderStaffIssues();
+      updatePendingBadge();
+    })
+    .on('postgres_changes', { event:'*', schema:'public', table:'custom_assets' }, async () => {
+      const { data } = await sb.from('custom_assets').select('*').order('created_at',{ascending:false});
+      CUSTOM_ASSETS = (data||[]).map(assetFromDb);
+      renderAssets(); populateAssetSelect(); updateAssetCountLabel();
+    })
+    .on('postgres_changes', { event:'*', schema:'public', table:'suggestions' }, async () => {
+      const { data } = await sb.from('suggestions').select('*').order('created_at',{ascending:false});
+      SUGGESTIONS = (data||[]).map(suggFromDb);
+      updateSuggestionsBadge(); updatePendingBadge();
+      if (staffLoggedIn && document.getElementById('staffpanel-suggestions').classList.contains('active')) renderSuggestionsList();
+    })
+    .subscribe();
+}
+
+// ── Toast helper ──
+function showToast(msg, duration=2800) {
+  const t = document.createElement('div');
+  t.className = 'toast-msg'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), duration);
+}
+
+const SEED_ISSUES = [
+  { id:'r1', assetId:'a9',  assetName:'J. Marshall Stith Park',        type:'Maintenance',   priority:'Normal', status:'Under Review', date:'2026-02-05', desc:'Two of the tennis court nets are sagging badly — the net posts are leaning and one net has a significant tear in the center. Makes the court unusable.',      response:'Thank you for reporting this. Our Parks crew has assessed the courts and we\'ve ordered replacement nets and hardware. Installation is scheduled for next week.',    responsedBy:'Parks Dept', responseDate:'2026-02-07', submitterName:'M. Aldridge', submitterEmail:'maldridge@example.com', submitterPhone:'', meToos:[{name:'L. Farrow',date:'2026-02-06',comment:'Confirmed — we tried to play last Saturday and both nets were completely unusable.'},{name:'Anonymous',date:'2026-02-07',comment:'Same issue. Please fix soon, the kids use these courts constantly.'},{name:'P. Ravenel',date:'2026-02-09',comment:''}] },
+  { id:'r2', assetId:'a12', assetName:'Sullivan\'s Island Nature Trail',type:'Maintenance',   priority:'High',   status:'Scheduled',   date:'2026-02-08', desc:'Section of boardwalk near the halfway marker has several boards that are cracked and one that is partially missing. Raised nails visible — a tripping hazard, especially for kids.',  response:'Safety inspection completed 2/10. A work order has been issued with High priority. Crew scheduled for 2/20 to replace damaged boards and secure all fasteners. Trail is passable but use caution in that section.', responsedBy:'Public Works', responseDate:'2026-02-10', submitterName:'T. Hernandez', submitterEmail:'thornton.h@email.com', submitterPhone:'(843) 555-0142' },
+  { id:'r3', assetId:'a22', assetName:'Battery Logan',                  type:'Maintenance',   priority:'Normal', status:'Pending',     date:'2026-02-14', desc:'Heavy vine overgrowth is covering the southern wall and obscuring the interpretive signage. Some vines appear to be penetrating the historic masonry.',  response:'',  responsedBy:'', responseDate:'', submitterName:'W. Beaumont', submitterEmail:'w.beaumont@gmail.com', submitterPhone:'', meToos:[{name:'SI Historical Society',date:'2026-02-15',comment:'We strongly second this — the vine growth has accelerated since last summer and poses a real risk to the historic masonry.'}] },
+  { id:'r4', assetId:'a16', assetName:'Public Beach Access Points',     type:'Cleaning',      priority:'Normal', status:'Completed',   date:'2026-01-28', desc:'Station 12 dune walkover has significant sand and debris buildup on the boards, and the handrail on the south side is loose.',   response:'Walkover cleared and handrail re-secured on 2/1. Inspected all hardware — one additional post was reinforced. Area is safe and clean.',  responsedBy:'Beach Services', responseDate:'2026-02-01', submitterName:'C. Sullivan', submitterEmail:'c.sullivan@si.sc.gov', submitterPhone:'', meToos:[] },
+  { id:'r5', assetId:'a5',  assetName:'Cove Inlet Bridge',              type:'Safety',        priority:'High',   status:'Completed',   date:'2026-01-18', desc:'Large section of the pedestrian railing on the north side is bent and loose — it gives way when leaned against. Serious fall hazard.',  response:'Emergency repair crew dispatched 1/19. Railing section replaced and all fasteners checked and tightened. Bridge is safe. Full inspection report filed.',  responsedBy:'Public Works', responseDate:'2026-01-19', submitterName:'R. Moultrie', submitterEmail:'r.moultrie@example.com', submitterPhone:'(843) 555-0188', meToos:[{name:'Anonymous',date:'2026-01-18',comment:'Glad someone reported this! I saw a child lean on that railing last weekend — it really moved.'},{name:'K. Whaley',date:'2026-01-19',comment:''}] },
+  { id:'r6', assetId:'a25', assetName:'Street Furniture & Signage',     type:'Vandalism',     priority:'Normal', status:'Closed',      date:'2026-02-10', desc:'Graffiti on the wayfinding sign near Station 17 intersection — blue spray paint, about 8 inches of text/symbols.',  response:'Sign cleaned and repainted 2/12. No structural damage. Area noted for monitoring.',  responsedBy:'Public Works', responseDate:'2026-02-12', submitterName:'B. Drayton', submitterEmail:'b.drayton@email.com', submitterPhone:'', meToos:[] },
+  { id:'r7', assetId:'a26', assetName:'Public Beach Showers & Facilities', type:'Maintenance', priority:'Normal', status:'Pending',   date:'2026-02-18', desc:'The outdoor shower at Station 22 has low water pressure — barely a trickle. The hot/cold dial is also stuck in the cold position.',  response:'',  responsedBy:'', responseDate:'', submitterName:'A. Prioleau', submitterEmail:'a.prioleau@gmail.com', submitterPhone:'(843) 555-0201', meToos:[{name:'Summer Resident',date:'2026-02-19',comment:'Same problem at the Station 21 shower — pressure dropped off in mid-January and never recovered.'}] },
+  { id:'r8', assetId:'a9',  assetName:'J. Marshall Stith Park',         type:'Improvement',   priority:'Low',    status:'Under Review', date:'2026-02-16', desc:'Would be wonderful to add a drinking water fountain near the basketball courts. It is a long walk to the playground fountain in the heat.',  response:'Suggestion logged and forwarded to Parks Committee for consideration in the 2027 capital planning cycle. Thank you!',  responsedBy:'Parks Dept', responseDate:'2026-02-19', submitterName:'D. Oswald', submitterEmail:'d.oswald@email.com', submitterPhone:'', meToos:[{name:'Anonymous',date:'2026-02-17',comment:''},{name:'C. Pinckney',date:'2026-02-18',comment:'Absolutely — summer is brutal out there. Even a simple bottle-filler would be a huge improvement.'},{name:'Anonymous',date:'2026-02-20',comment:''}] },
+];
+
+// addSeedData removed
+
+// ════════════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════════════
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  if (name === 'public')  renderPublicIssues();
+  if (name === 'staff')   renderStaffIssues();
+  if (name === 'assets')  renderAssets();
+  updatePendingBadge();
+}
+
+// ════════════════════════════════════════════════════════
+//  ASSET REGISTRY
+// ════════════════════════════════════════════════════════
+
+function catClass(cat) {
+  const map = { Buildings:'cat-buildings', Infrastructure:'cat-infra', Parks:'cat-parks', Beach:'cat-beach', Natural:'cat-natural', Protected:'cat-protected', Historic:'cat-historic', Other:'cat-other' };
+  return map[cat] || 'cat-other';
+}
+function statusClass(s) {
+  return s === 'Good' ? 'status-good' : s === 'Attention' ? 'status-attention' : 'status-monitor';
+}
+
+function getOpenIssueCount(assetId) {
+  return ISSUES.filter(i => i.assetId === assetId && !['Completed','Closed'].includes(i.status)).length;
+}
+
+function renderAssets() {
+  const search = document.getElementById('asset-search').value.toLowerCase();
+  const cat    = document.getElementById('asset-cat-filter').value;
+  const status = document.getElementById('asset-status-filter').value;
+
+  let filtered = allAssets().filter(a => {
+    if (cat    && a.cat    !== cat)    return false;
+    if (status && a.status !== status) return false;
+    if (search && !a.name.toLowerCase().includes(search) && !a.location.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  const grid = document.getElementById('asset-grid');
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🗺</div><p>No assets match your filters.</p></div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(a => {
+    const openCount = getOpenIssueCount(a.id);
+    return `<div class="asset-card" onclick="openAssetModal('${a.id}')">
+      <div class="asset-card-top">
+        <div class="asset-icon ${catClass(a.cat)}">${a.icon}</div>
+        <span class="asset-status ${statusClass(a.status)}">${a.status}</span>
+      </div>
+      <h3>${a.name}</h3>
+      <p class="asset-location">📍 ${a.location}</p>
+      <p class="asset-desc">${a.desc}</p>
+      <div class="asset-card-footer">
+        <span class="cat-tag">${a.cat}</span>
+        <div style="display:flex;gap:6px;align-items:center">${a.isCustom ? `<span class="custom-asset-badge">${a.source==='staff'?'Staff Added':'Community Added'}</span>` : ''}${openCount > 0 ? `<span class="open-issues-count">⚠ ${openCount} open issue${openCount>1?'s':''}</span>` : '<span style="font-size:12px;color:var(--text-lt)">No open issues</span>'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAssetModal(assetId) {
+  const a = allAssets().find(x => x.id === assetId);
+  if (!a) return;
+  document.getElementById('modal-title').textContent = a.name;
+  document.getElementById('modal-meta').innerHTML = `
+    <span class="asset-status ${statusClass(a.status)}">${a.status}</span>
+    <span class="tag">${a.cat}</span>
+    <span class="tag">📍 ${a.location}</span>`;
+  document.getElementById('modal-desc').textContent = a.desc;
+  document.getElementById('modal-features').innerHTML = `<strong>Features &amp; Amenities</strong>${a.features}`;
+  document.getElementById('modal-report-btn').onclick = () => { closeModal(); showView('submit'); document.getElementById('f-asset').value = assetId; };
+
+  // Show recent issues for this asset
+  const issues = ISSUES.filter(i => i.assetId === assetId).slice(0,4);
+  const il = document.getElementById('modal-issues-list');
+  if (issues.length) {
+    il.innerHTML = `<strong style="font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-lt)">Recent Requests (${issues.length})</strong><div style="margin-top:8px">${issues.map(i => `
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+        <span class="issue-status-badge is-${i.status.toLowerCase().replace(' ','-')}">${i.status}</span>
+        <div style="font-size:13px;color:var(--text-md)">${i.desc.slice(0,120)}${i.desc.length>120?'…':''}</div>
+      </div>`).join('')}</div>`;
+  } else {
+    il.innerHTML = '';
+  }
+  document.getElementById('asset-modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target.classList.contains('modal-overlay')) {
+    document.getElementById('asset-modal').classList.remove('open');
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  SUBMIT REQUEST
+// ════════════════════════════════════════════════════════
+
+function populateAssetSelect() {
+  const sel = document.getElementById('f-asset');
+  sel.innerHTML = '<option value="">— Select an asset —</option>' +
+    allAssets().map(a => `<option value="${a.id}">${a.icon} ${a.name} — ${a.location}</option>`).join('');
+}
+
+async function submitRequest() {
+  const name  = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const asset = document.getElementById('f-asset').value;
+  const type  = document.getElementById('f-type').value;
+  const desc  = document.getElementById('f-desc').value.trim();
+
+  if (!name)  { alert('Please enter your name.'); return; }
+  if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
+  if (!asset) { alert('Please select an asset.'); return; }
+  if (!type)  { alert('Please select an issue type.'); return; }
+  if (desc.length < 20) { alert('Please provide a more detailed description (at least 20 characters).'); return; }
+
+  const a = allAssets().find(x => x.id === asset);
+  const issue = {
+    id: 'r' + Date.now(),
+    assetId: asset,
+    assetName: a ? a.name : asset,
+    type,
+    priority: document.getElementById('f-priority').value,
+    status: 'Pending',
+    date: new Date().toISOString().slice(0,10),
+    desc,
+    response: '',
+    responsedBy: '',
+    responseDate: '',
+    submitterName: name,
+    submitterEmail: email,
+    submitterPhone: document.getElementById('f-phone').value.trim(),
+    meToos: [],
+  };
+  try {
+    const { error } = await sb.from('issues').insert(issueToDb(issue));
+    if (error) throw error;
+    ISSUES.unshift(issue);
+    updatePendingBadge();
+    document.getElementById('submit-form-wrap').style.display = 'none';
+    document.getElementById('submit-success').classList.add('show');
+  } catch(e) { console.error(e); alert('Error submitting request: ' + e.message); }
+}
+
+function resetSubmitForm() {
+  ['f-name','f-email','f-phone','f-desc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-asset').value = '';
+  document.getElementById('f-type').value = '';
+  document.getElementById('f-priority').value = 'Normal';
+  document.getElementById('submit-form-wrap').style.display = 'block';
+  document.getElementById('submit-success').classList.remove('show');
+}
+
+// ════════════════════════════════════════════════════════
+//  SHARED ISSUE HELPERS
+// ════════════════════════════════════════════════════════
+
+function typeClass(t) {
+  const m = { Maintenance:'type-maintenance', Cleaning:'type-cleaning', Safety:'type-safety', Vandalism:'type-vandalism', Improvement:'type-improvement', Other:'type-other' };
+  return m[t] || 'type-other';
+}
+function statusBadgeClass(s) {
+  const m = { 'Pending':'is-pending','Under Review':'is-review','Scheduled':'is-scheduled','Completed':'is-completed','Closed':'is-closed' };
+  return m[s] || 'is-pending';
+}
+function fmtDate(d) {
+  if (!d) return '';
+  const [y,m,dd] = d.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[parseInt(m)-1]} ${parseInt(dd)}, ${y}`;
+}
+
+function buildStats(issues) {
+  const counts = { Pending:0, 'Under Review':0, Scheduled:0, Completed:0, Closed:0 };
+  issues.forEach(i => { if (counts[i.status] !== undefined) counts[i.status]++; });
+  return `
+    <div class="stat-chip s-pending">  <span class="stat-num">${counts['Pending']}</span>      <span class="stat-label">Pending</span></div>
+    <div class="stat-chip s-review">   <span class="stat-num">${counts['Under Review']}</span>  <span class="stat-label">Under Review</span></div>
+    <div class="stat-chip s-scheduled"><span class="stat-num">${counts['Scheduled']}</span>     <span class="stat-label">Scheduled</span></div>
+    <div class="stat-chip s-completed"><span class="stat-num">${counts['Completed']}</span>     <span class="stat-label">Completed</span></div>
+    <div class="stat-chip s-closed">   <span class="stat-num">${counts['Closed']}</span>        <span class="stat-label">Closed</span></div>`;
+}
+
+// ════════════════════════════════════════════════════════
+//  PUBLIC ISSUES VIEW
+// ════════════════════════════════════════════════════════
+
+function renderPublicIssues() {
+  document.getElementById('public-stats').innerHTML = buildStats(ISSUES);
+  const search = (document.getElementById('pub-search').value || '').toLowerCase();
+  const status = document.getElementById('pub-status').value;
+  const type   = document.getElementById('pub-type').value;
+  const sort   = document.getElementById('pub-sort').value;
+
+  let list = ISSUES.filter(i => {
+    if (status && i.status !== status) return false;
+    if (type   && i.type   !== type)   return false;
+    if (search && !i.assetName.toLowerCase().includes(search) && !i.desc.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  if (sort === 'newest')   list = [...list].sort((a,b) => b.date.localeCompare(a.date));
+  if (sort === 'oldest')   list = [...list].sort((a,b) => a.date.localeCompare(b.date));
+  if (sort === 'status')   list = [...list].sort((a,b) => a.status.localeCompare(b.status));
+  if (sort === 'popular')  list = [...list].sort((a,b) => (b.meToos||[]).length - (a.meToos||[]).length);
+
+  const el = document.getElementById('public-issues-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>No issues match your filters.</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(i => {
+    const meToos = i.meToos || [];
+    const count  = meToos.length;
+    const withComment = meToos.filter(m => m.comment && m.comment.trim());
+    return `
+    <div class="issue-card" id="pub-card-${i.id}">
+      <div class="issue-card-header">
+        <div class="issue-card-title">
+          <span class="issue-asset-name">${i.assetName}</span>
+          <span class="issue-type-tag ${typeClass(i.type)}">${i.type}</span>
+          ${i.priority === 'High' ? '<span style="font-size:11px;color:var(--coral);font-weight:700">⚠ HIGH PRIORITY</span>' : ''}
+        </div>
+        <span class="issue-status-badge ${statusBadgeClass(i.status)}">${i.status}</span>
+      </div>
+      <p class="issue-description">${escHtml(i.desc)}</p>
+      <div class="issue-meta">
+        <span>📅 Submitted ${fmtDate(i.date)}</span>
+        <span>🏷 ${i.type}</span>
+        <span>⚡ Priority: ${i.priority}</span>
+      </div>
+      ${i.response ? `<div class="staff-response">
+        <div class="staff-response-label">🏛 Official Town Response — ${i.responsedBy}${i.responseDate ? ' · ' + fmtDate(i.responseDate) : ''}</div>
+        <p>${escHtml(i.response)}</p>
+      </div>` : `<p class="awaiting-response">⏳ Awaiting official town response</p>`}
+
+      <div class="issue-actions">
+        <button class="metoo-btn" id="mtbtn-${i.id}" onclick="toggleMeTooPanel('${i.id}')" title="I have the same issue — add your voice">
+          👋 Me Too
+          <span class="metoo-count" id="mtcount-${i.id}">${count}</span>
+        </button>
+        ${withComment.length > 0 ? `<button class="view-comments-btn" onclick="toggleComments('${i.id}')">${withComment.length} comment${withComment.length>1?'s':''} — tap to show/hide</button>` : '<span style="font-size:12px;color:var(--text-lt);font-style:italic">No comments yet</span>'}
+      </div>
+
+      <div class="metoo-panel" id="mtpanel-${i.id}">
+        <h5>👋 Add your voice to this request</h5>
+        <input type="text" id="mt-name-${i.id}" placeholder="Your name (leave blank to stay anonymous)" maxlength="60">
+        <textarea id="mt-comment-${i.id}" placeholder="Optional: share your own observations or details… (visible to the public)"></textarea>
+        <div class="metoo-panel-actions">
+          <button class="btn btn-outline btn-sm" onclick="closeMeTooPanel('${i.id}')">Cancel</button>
+          <button class="btn btn-primary btn-sm" onclick="submitMeToo('${i.id}')">👋 Submit Me Too</button>
+        </div>
+      </div>
+
+      ${withComment.length > 0 ? `
+      <div class="comments-thread" id="thread-${i.id}">
+        <div class="comments-thread-label">👥 Community Voices (${withComment.length})</div>
+        ${withComment.map(m => `
+        <div class="comment-item">
+          <div class="comment-item-header">
+            <span class="comment-author">${m.name && m.name !== 'Anonymous' ? escHtml(m.name) : '<span class="anon-label">Anonymous neighbor</span>'}</span>
+            <span class="comment-date">${fmtDate(m.date)}</span>
+          </div>
+          <p class="comment-text">${escHtml(m.comment)}</p>
+        </div>`).join('')}
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleMeTooPanel(id) {
+  const panel = document.getElementById('mtpanel-'+id);
+  const isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.metoo-panel.open').forEach(p => p.classList.remove('open'));
+  if (!isOpen) { panel.classList.add('open'); document.getElementById('mt-name-'+id).focus(); }
+}
+function closeMeTooPanel(id) {
+  document.getElementById('mtpanel-'+id).classList.remove('open');
+}
+function toggleComments(id) {
+  const thread = document.getElementById('thread-'+id);
+  if (thread) thread.classList.toggle('open');
+}
+
+async function submitMeToo(id) {
+  const idx = ISSUES.findIndex(i => i.id === id);
+  if (idx === -1) return;
+  const name    = (document.getElementById('mt-name-'+id).value || '').trim() || 'Anonymous';
+  const comment = (document.getElementById('mt-comment-'+id).value || '').trim();
+  if (!ISSUES[idx].meToos) ISSUES[idx].meToos = [];
+  ISSUES[idx].meToos.push({ name, comment, date: new Date().toISOString().slice(0,10) });
+  try {
+    const { error } = await sb.from('issues').update({ me_toos: ISSUES[idx].meToos }).eq('id', id);
+    if (error) throw error;
+    renderPublicIssues();
+    setTimeout(() => {
+      const btn = document.getElementById('mtbtn-'+id);
+      if (btn) { btn.classList.add('voted','metoo-pulse'); setTimeout(()=>btn.classList.remove('metoo-pulse'),400); }
+      if (comment) { const t = document.getElementById('thread-'+id); if (t) t.classList.add('open'); }
+      const card = document.getElementById('pub-card-'+id);
+      if (card) card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }, 60);
+    showToast('👋 Me Too added!');
+  } catch(e) { console.error(e); alert('Error saving Me Too: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════
+//  STAFF VIEW
+// ════════════════════════════════════════════════════════
+
+function staffLogin() {
+  const pwd = document.getElementById('staff-pwd').value;
+  if (pwd === 'Sull250!') {
+    staffLoggedIn = true;
+    document.getElementById('staff-login-screen').style.display = 'none';
+    document.getElementById('staff-dashboard').style.display = 'block';
+    renderStaffIssues();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+function staffLogout() {
+  staffLoggedIn = false;
+  document.getElementById('staff-login-screen').style.display = 'block';
+  document.getElementById('staff-dashboard').style.display = 'none';
+  document.getElementById('staff-pwd').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  showView('assets');
+}
+
+function renderStaffIssues() {
+  if (!staffLoggedIn) return;
+  document.getElementById('staff-stats').innerHTML = buildStats(ISSUES);
+  const search = (document.getElementById('staff-search').value || '').toLowerCase();
+  const filter = document.getElementById('staff-filter').value;
+
+  let list = ISSUES.filter(i => {
+    if (filter && i.status !== filter) return false;
+    if (search && !i.assetName.toLowerCase().includes(search) && !i.desc.toLowerCase().includes(search) && !i.submitterName.toLowerCase().includes(search)) return false;
+    return true;
+  }).sort((a,b) => b.date.localeCompare(a.date));
+
+  const el = document.getElementById('staff-issues-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🗂</div><p>No requests to display.</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(i => `
+    <div class="staff-issue-card" id="sic-${i.id}">
+      <div class="issue-card-header">
+        <div class="issue-card-title">
+          <span class="issue-asset-name">${i.assetName}</span>
+          <span class="issue-type-tag ${typeClass(i.type)}">${i.type}</span>
+          ${i.priority === 'High' ? '<span style="font-size:11px;color:var(--coral);font-weight:700">⚠ HIGH</span>' : ''}
+        </div>
+        <span class="issue-status-badge ${statusBadgeClass(i.status)}">${i.status}</span>
+      </div>
+      <p class="issue-description">${escHtml(i.desc)}</p>
+      <div class="staff-issue-card contact-info" style="display:grid;grid-template-columns:auto 1fr;gap:4px 20px;margin-top:12px;background:#fafafa;padding:10px 14px;border-radius:8px;font-size:13px">
+        <span class="ci-label">Submitter</span> <span>${escHtml(i.submitterName)}</span>
+        <span class="ci-label">Email</span>     <span><a href="mailto:${escHtml(i.submitterEmail)}" style="color:var(--teal)">${escHtml(i.submitterEmail)}</a></span>
+        ${i.submitterPhone ? `<span class="ci-label">Phone</span><span>${escHtml(i.submitterPhone)}</span>` : ''}
+        <span class="ci-label">Submitted</span><span>${fmtDate(i.date)}</span>
+      </div>
+      ${i.response ? `<div class="staff-response" style="margin-top:12px">
+        <div class="staff-response-label">✅ Response posted by ${escHtml(i.responsedBy)} — ${fmtDate(i.responseDate)}</div>
+        <p>${escHtml(i.response)}</p>
+        <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="editResponse('${i.id}')">✏️ Edit Response</button>
+      </div>` : ''}
+      ${(i.meToos && i.meToos.length > 0) ? `<div style="margin-top:12px;background:#fffaf4;border:1px solid var(--sand-lt);border-radius:10px;padding:12px 14px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sand);margin-bottom:8px">👋 Me Too — ${i.meToos.length} neighbor${i.meToos.length>1?'s':''} agree</div>
+        ${i.meToos.map(m => `<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--sand-lt)">
+          <span style="font-size:12px;font-weight:600;color:var(--navy);white-space:nowrap">${escHtml(m.name||'Anonymous')}</span>
+          <span style="font-size:12px;color:var(--text-lt)">${fmtDate(m.date)}</span>
+          ${m.comment ? `<span style="font-size:12px;color:var(--text-md);flex:1">${escHtml(m.comment)}</span>` : '<span style="font-size:12px;color:var(--text-lt);font-style:italic;flex:1">No comment added</span>'}
+        </div>`).join('')}
+      </div>` : '<p style="margin-top:10px;font-size:12px;color:var(--text-lt);font-style:italic">No Me Too responses yet.</p>'}
+      <div class="response-form" id="rf-${i.id}">
+        <label style="font-size:12px;font-weight:600;color:var(--text-lt);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">${i.response ? '📝 Update Response' : '💬 Post Response'}</label>
+        <textarea id="rt-${i.id}" placeholder="Write official town response visible to the public…">${escHtml(i.response)}</textarea>
+        <div class="response-row">
+          <select id="rs-${i.id}">
+            <option value="Pending" ${i.status==='Pending'?'selected':''}>⏳ Pending</option>
+            <option value="Under Review" ${i.status==='Under Review'?'selected':''}>🔍 Under Review</option>
+            <option value="Scheduled" ${i.status==='Scheduled'?'selected':''}>📅 Scheduled</option>
+            <option value="Completed" ${i.status==='Completed'?'selected':''}>✅ Completed</option>
+            <option value="Closed" ${i.status==='Closed'?'selected':''}>🔒 Closed</option>
+          </select>
+          <input type="text" id="rby-${i.id}" placeholder="Your name / department" value="${escHtml(i.responsedBy)}"
+            style="font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;outline:none;background:var(--cream);flex:1;min-width:160px">
+          <button class="btn btn-primary btn-sm" onclick="saveResponse('${i.id}')">💾 Save</button>
+          <button class="btn btn-outline btn-sm" onclick="deleteIssue('${i.id}')" style="color:var(--coral);border-color:var(--coral)">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function editResponse(id) {
+  // response form is always shown in staff view
+}
+
+async function saveResponse(id) {
+  const idx = ISSUES.findIndex(i => i.id === id);
+  if (idx === -1) return;
+  const response    = document.getElementById('rt-'+id).value.trim();
+  const status      = document.getElementById('rs-'+id).value;
+  const responsedBy = document.getElementById('rby-'+id).value.trim() || 'Town Staff';
+  ISSUES[idx].response    = response;
+  ISSUES[idx].status      = status;
+  ISSUES[idx].responsedBy = responsedBy;
+  ISSUES[idx].responseDate = response ? new Date().toISOString().slice(0,10) : '';
+  try {
+    const { error } = await sb.from('issues').update(issueToDb(ISSUES[idx])).eq('id', id);
+    if (error) throw error;
+    updatePendingBadge();
+    renderStaffIssues();
+    showToast('✅ Response saved');
+  } catch(e) { console.error(e); alert('Error saving response: ' + e.message); }
+}
+
+async function deleteIssue(id) {
+  if (!confirm('Delete this request permanently?')) return;
+  try {
+    const { error } = await sb.from('issues').delete().eq('id', id);
+    if (error) throw error;
+    ISSUES = ISSUES.filter(i => i.id !== id);
+    renderStaffIssues();
+    updatePendingBadge();
+    showToast('🗑 Request deleted');
+  } catch(e) { console.error(e); alert('Error deleting: ' + e.message); }
+}
+
+function updatePendingBadge() {
+  const count = ISSUES.filter(i => i.status === 'Pending').length + SUGGESTIONS.filter(s => s.status === 'Pending').length;
+  const badge = document.getElementById('pending-badge');
+  if (count > 0) { badge.textContent = count; badge.style.display = 'inline'; }
+  else { badge.style.display = 'none'; }
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderAll() {
+  renderAssets();
+  renderPublicIssues();
+  if (staffLoggedIn) renderStaffIssues();
+  updatePendingBadge();
+}
+
+
+// ════════════════════════════════════════════════════════
+//  ASSET SUGGESTIONS & CUSTOM ASSETS
+// ════════════════════════════════════════════════════════
+
+const ICON_OPTIONS = ['🏛','🏗','🏚','🚒','🌉','🛤','🚶','🚦','⚽','🎾','🌊','🌿','🌅','🌱','⛺','🏖','🏄','🌾','🚧','🏗','⚓','🅿','⛵','🪑','🚿','🌳','🎣','🚣','⛲','🌻','🐚','🗿','🏕','🗺','🦅','🌴'];
+
+// CUSTOM_ASSETS, SUGGESTIONS, and ISSUES are loaded via Supabase — see loadAllData()
+
+// Merge built-in + approved custom assets for display
+function allAssets() {
+  return [...ASSETS, ...CUSTOM_ASSETS];
+}
+
+// ── Suggest Modal ──
+let suggestIsStaff = false;
+function openSuggestModal(isStaff) {
+  suggestIsStaff = isStaff;
+  document.getElementById('suggest-modal-title').textContent = isStaff ? '➕ Add Asset to Registry' : '🗺 Suggest a New Asset';
+  document.getElementById('suggest-modal-sub').textContent  = isStaff
+    ? 'As a staff member, this asset will be added directly to the public registry without review.'
+    : 'Your suggestion will be reviewed by town staff before appearing in the registry.';
+  document.getElementById('sa-submit-btn').textContent = isStaff ? '✅ Add to Registry' : '📤 Submit Suggestion';
+  document.getElementById('sa-submitter-fields').style.display = isStaff ? 'none' : 'block';
+  document.getElementById('sa-privacy-note').style.display     = isStaff ? 'none' : 'block';
+  // Clear fields
+  ['sa-name','sa-location','sa-desc','sa-features','sa-subname','sa-subemail'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('sa-cat').value = '';
+  document.getElementById('sa-icon-input').value = '🏛';
+  document.getElementById('sa-icon-preview').textContent = '🏛';
+  // Build icon picker
+  const grid = document.getElementById('icon-picker-grid');
+  grid.innerHTML = ICON_OPTIONS.map(ic => `<button type="button" onclick="selectIcon('${ic}')" title="${ic}">${ic}</button>`).join('');
+  document.getElementById('suggest-modal').classList.add('open');
+}
+function closeSuggestModal(e) {
+  if (!e || e.target.classList.contains('asset-form-modal')) {
+    document.getElementById('suggest-modal').classList.remove('open');
+  }
+}
+function selectIcon(ic) {
+  document.getElementById('sa-icon-input').value = ic;
+  document.getElementById('sa-icon-preview').textContent = ic;
+  document.querySelectorAll('#icon-picker-grid button').forEach(b => b.classList.toggle('selected', b.textContent === ic));
+}
+
+async function submitAssetSuggestion() {
+  const name     = document.getElementById('sa-name').value.trim();
+  const cat      = document.getElementById('sa-cat').value;
+  const location = document.getElementById('sa-location').value.trim();
+  const desc     = document.getElementById('sa-desc').value.trim();
+  const icon     = document.getElementById('sa-icon-input').value.trim() || '🏛';
+  const features = document.getElementById('sa-features').value.trim();
+
+  if (!name)     { alert('Please enter an asset name.'); return; }
+  if (!cat)      { alert('Please select a category.'); return; }
+  if (!location) { alert('Please enter a location.'); return; }
+  if (desc.length < 20) { alert('Please provide a more detailed description (at least 20 characters).'); return; }
+
+  if (suggestIsStaff) {
+    const newAsset = {
+      id: 'ca' + Date.now(), cat, icon, status: 'Good', name, location, desc,
+      features: features || 'Staff-added asset',
+      addedBy: 'Staff', addedDate: new Date().toISOString().slice(0,10),
+      isCustom: true, source: 'staff'
+    };
+    try {
+      const { error } = await sb.from('custom_assets').insert(assetToDb(newAsset));
+      if (error) throw error;
+      CUSTOM_ASSETS.push(newAsset);
+      closeSuggestModal();
+      populateAssetSelect();
+      renderAssets();
+      if (staffLoggedIn) renderCustomAssetsList();
+      updateAssetCountLabel();
+      showToast('✅ "' + name + '" added to registry!');
+    } catch(e) { console.error(e); alert('Error adding asset: ' + e.message); }
+  } else {
+    const subName  = document.getElementById('sa-subname').value.trim();
+    const subEmail = document.getElementById('sa-subemail').value.trim();
+    if (!subName)  { alert('Please enter your name.'); return; }
+    if (!subEmail || !subEmail.includes('@')) { alert('Please enter a valid email address.'); return; }
+    const suggestion = {
+      id: 'sg' + Date.now(), cat, icon, name, location, desc,
+      features: features || '',
+      submitterName: subName, submitterEmail: subEmail,
+      date: new Date().toISOString().slice(0,10),
+      status: 'Pending', source: 'citizen'
+    };
+    try {
+      const { error } = await sb.from('suggestions').insert(suggToDb(suggestion));
+      if (error) throw error;
+      SUGGESTIONS.push(suggestion);
+      closeSuggestModal();
+      updateSuggestionsBadge();
+      updatePendingBadge();
+      alert('Thank you! Your suggestion for "' + name + '" has been submitted. Town staff will review it shortly.');
+    } catch(e) { console.error(e); alert('Error submitting suggestion: ' + e.message); }
+  }
+}
+
+// ── Staff: render suggestions queue ──
+function renderSuggestionsList() {
+  const pending = SUGGESTIONS.filter(s => s.status === 'Pending');
+  updateSuggestionsBadge();
+  const el = document.getElementById('suggestions-list');
+  if (!el) return;
+  if (!pending.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><p>No pending asset suggestions. All caught up!</p></div>';
+    return;
+  }
+  el.innerHTML = pending.map(s => `
+    <div class="suggestion-card" id="sgcard-${s.id}">
+      <div class="suggestion-card-header">
+        <h4><span style="font-size:24px">${s.icon}</span> ${escHtml(s.name)}</h4>
+        <span class="suggestion-source source-${s.source}">${s.source === 'citizen' ? '👤 Citizen Suggestion' : '🏛 Staff Added'}</span>
+      </div>
+      <div class="suggestion-details">
+        <span class="sd-label">Category</span>  <span>${s.cat}</span>
+        <span class="sd-label">Location</span>  <span>${escHtml(s.location)}</span>
+        <span class="sd-label">Submitted</span> <span>${fmtDate(s.date)}</span>
+        <span class="sd-label">From</span>      <span>${escHtml(s.submitterName)} — <a href="mailto:${escHtml(s.submitterEmail)}" style="color:var(--teal)">${escHtml(s.submitterEmail)}</a></span>
+        <span class="sd-label">Description</span><span>${escHtml(s.desc)}</span>
+        ${s.features ? `<span class="sd-label">Features</span><span>${escHtml(s.features)}</span>` : ''}
+      </div>
+      <div class="suggestion-edit-form">
+        <h5>✏️ Edit before approving (optional)</h5>
+        <div class="form-row" style="margin-bottom:10px">
+          <div class="form-group" style="margin-bottom:0">
+            <label style="font-size:12px">Name</label>
+            <input type="text" id="sge-name-${s.id}" value="${escHtml(s.name)}"
+              style="font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;background:var(--cream);outline:none;width:100%">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label style="font-size:12px">Location</label>
+            <input type="text" id="sge-loc-${s.id}" value="${escHtml(s.location)}"
+              style="font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;background:var(--cream);outline:none;width:100%">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:10px">
+          <label style="font-size:12px">Description</label>
+          <textarea id="sge-desc-${s.id}"
+            style="font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;background:var(--cream);outline:none;width:100%;resize:vertical;min-height:70px">${escHtml(s.desc)}</textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label style="font-size:12px">Features</label>
+          <input type="text" id="sge-feat-${s.id}" value="${escHtml(s.features)}"
+            style="font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;background:var(--cream);outline:none;width:100%">
+        </div>
+      </div>
+      <div class="suggestion-actions">
+        <button class="btn btn-success btn-sm" onclick="approveSuggestion('${s.id}')">✅ Approve &amp; Add to Registry</button>
+        <button class="btn btn-outline btn-sm" style="color:var(--coral);border-color:var(--coral)" onclick="rejectSuggestion('${s.id}')">✗ Reject</button>
+      </div>
+    </div>`).join('');
+}
+
+async function approveSuggestion(id) {
+  const idx = SUGGESTIONS.findIndex(s => s.id === id);
+  if (idx === -1) return;
+  const s = SUGGESTIONS[idx];
+  const newAsset = {
+    id: 'ca' + Date.now(), cat: s.cat, icon: s.icon, status: 'Good',
+    name:     document.getElementById('sge-name-'+id).value.trim() || s.name,
+    location: document.getElementById('sge-loc-'+id).value.trim()  || s.location,
+    desc:     document.getElementById('sge-desc-'+id).value.trim() || s.desc,
+    features: document.getElementById('sge-feat-'+id).value.trim() || s.features || 'Community-added asset',
+    addedBy: s.submitterName, addedDate: s.date, isCustom: true, source: 'citizen'
+  };
+  try {
+    const { error: e1 } = await sb.from('custom_assets').insert(assetToDb(newAsset));
+    if (e1) throw e1;
+    const { error: e2 } = await sb.from('suggestions').update({ status: 'Approved' }).eq('id', id);
+    if (e2) throw e2;
+    CUSTOM_ASSETS.push(newAsset);
+    SUGGESTIONS[idx].status = 'Approved';
+    populateAssetSelect(); renderAssets(); renderSuggestionsList(); renderCustomAssetsList();
+    updateSuggestionsBadge(); updateAssetCountLabel();
+    showToast('✅ "' + newAsset.name + '" approved and added to registry!');
+  } catch(e) { console.error(e); alert('Error approving: ' + e.message); }
+}
+
+async function rejectSuggestion(id) {
+  if (!confirm('Reject and remove this asset suggestion?')) return;
+  try {
+    const { error } = await sb.from('suggestions').update({ status: 'Rejected' }).eq('id', id);
+    if (error) throw error;
+    const idx2 = SUGGESTIONS.findIndex(s => s.id === id);
+    if (idx2 !== -1) SUGGESTIONS[idx2].status = 'Rejected';
+    renderSuggestionsList(); updateSuggestionsBadge();
+    showToast('Suggestion rejected');
+  } catch(e) { console.error(e); alert('Error rejecting: ' + e.message); }
+}
+
+// ── Staff: manage custom assets list ──
+function renderCustomAssetsList() {
+  const el = document.getElementById('custom-assets-list');
+  if (!el) return;
+  const all = allAssets();   // built-ins + custom, in current order
+
+  if (!all.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🗺</div><p>No assets in registry.</p></div>';
+    return;
+  }
+
+  el.innerHTML = all.map((a, idx) => `
+    <div class="asset-manager-row" id="amr-${a.id}"
+         draggable="true"
+         ondragstart="amDragStart(event,'${a.id}')"
+         ondragover="amDragOver(event,'${a.id}')"
+         ondragleave="amDragLeave(event,'${a.id}')"
+         ondrop="amDrop(event,'${a.id}')">
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <span class="row-order-num">${idx+1}</span>
+      <div class="row-icon ${catClass(a.cat)}">${a.icon}</div>
+      <div class="row-info">
+        <div class="row-name">${escHtml(a.name)}</div>
+        <div class="row-meta">
+          <span>📍 ${escHtml(a.location)}</span>
+          <span>${a.cat}</span>
+          <span class="row-badge ${a.isCustom ? (a.source==='staff'?'badge-staff':'badge-citizen') : 'badge-builtin'}">
+            ${a.isCustom ? (a.source==='staff' ? 'Staff Added' : 'Community') : 'Built-in'}
+          </span>
+        </div>
+      </div>
+      <div class="row-actions">
+        <button class="delete-asset-btn" onclick="deleteAnyAsset('${a.id}','${escHtml(a.name).replace(/'/g,"\\'")}',${!!a.isCustom})" title="Remove from registry">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── Drag-and-drop reorder ─────────────────────────────
+let amDraggingId = null;
+
+function amDragStart(e, id) {
+  amDraggingId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => {
+    const el = document.getElementById('amr-'+id);
+    if (el) el.classList.add('dragging');
+  }, 0);
+}
+function amDragOver(e, id) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (id === amDraggingId) return;
+  document.querySelectorAll('.asset-manager-row.drag-over').forEach(r => r.classList.remove('drag-over'));
+  const el = document.getElementById('amr-'+id);
+  if (el) el.classList.add('drag-over');
+}
+function amDragLeave(e, id) {
+  const el = document.getElementById('amr-'+id);
+  if (el) el.classList.remove('drag-over');
+}
+function amDrop(e, targetId) {
+  e.preventDefault();
+  document.querySelectorAll('.asset-manager-row').forEach(r => {
+    r.classList.remove('drag-over'); r.classList.remove('dragging');
+  });
+  if (!amDraggingId || amDraggingId === targetId) return;
+
+  // Work on a unified order array of ids
+  const all = allAssets();
+  const ids = all.map(a => a.id);
+  const fromIdx = ids.indexOf(amDraggingId);
+  const toIdx   = ids.indexOf(targetId);
+  if (fromIdx === -1 || toIdx === -1) return;
+  ids.splice(fromIdx, 1);
+  ids.splice(toIdx, 0, amDraggingId);
+
+  // Rebuild ASSETS and CUSTOM_ASSETS arrays in new order
+  const builtinIds = new Set(ASSETS.map(a => a.id));
+  const allMap     = Object.fromEntries(all.map(a => [a.id, a]));
+  const newBuiltin = [];
+  const newCustom  = [];
+  ids.forEach(id => {
+    const a = allMap[id];
+    if (!a) return;
+    if (builtinIds.has(id)) newBuiltin.push(a);
+    else newCustom.push(a);
+  });
+  ASSETS.length = 0;
+  newBuiltin.forEach(a => ASSETS.push(a));
+  CUSTOM_ASSETS = newCustom;
+
+  // Show save bar
+  document.getElementById('save-order-bar').classList.add('show');
+
+  renderCustomAssetsList();
+  amDraggingId = null;
+}
+
+async function saveAssetOrder() {
+  // Persist the new order:
+  // • For CUSTOM_ASSETS: save to Supabase (order tracked via created_at won't help,
+  //   so we store a display_order column if it exists, otherwise just update localStorage)
+  // • For ASSETS (built-in): save order to localStorage as an ordered id array
+  try {
+    localStorage.setItem('si_asset_order', JSON.stringify(ASSETS.map(a => a.id)));
+    saveCustomAssets(CUSTOM_ASSETS);
+    document.getElementById('save-order-bar').classList.remove('show');
+    renderAssets();
+    populateAssetSelect();
+    updateAssetCountLabel();
+    showToast('✅ Asset order saved');
+  } catch(e) {
+    alert('Error saving order: ' + e.message);
+  }
+}
+
+// ── Delete ANY asset (built-in or custom) ────────────────
+async function deleteAnyAsset(id, name, isCustom) {
+  if (!confirm(`Remove "${name}" from the registry?\n\nThis will hide it from the public registry and the request form. It can be re-added manually.`)) return;
+
+  if (isCustom) {
+    // Custom asset — delete from Supabase
+    try {
+      const { error } = await sb.from('custom_assets').delete().eq('id', id);
+      if (error) throw error;
+      CUSTOM_ASSETS = CUSTOM_ASSETS.filter(a => a.id !== id);
+      saveCustomAssets(CUSTOM_ASSETS);
+    } catch(e) { alert('Error removing asset: ' + e.message); return; }
+  } else {
+    // Built-in asset — remove from in-memory ASSETS array and persist suppression list
+    const idx = ASSETS.findIndex(a => a.id === id);
+    if (idx !== -1) ASSETS.splice(idx, 1);
+    // Save suppressed built-in ids to localStorage
+    let suppressed = [];
+    try { suppressed = JSON.parse(localStorage.getItem('si_suppressed_assets') || '[]'); } catch(e){}
+    if (!suppressed.includes(id)) suppressed.push(id);
+    localStorage.setItem('si_suppressed_assets', JSON.stringify(suppressed));
+    // Also persist new order
+    localStorage.setItem('si_asset_order', JSON.stringify(ASSETS.map(a => a.id)));
+  }
+
+  populateAssetSelect();
+  renderAssets();
+  renderCustomAssetsList();
+  updateAssetCountLabel();
+  showToast(`🗑 "${name}" removed from registry`);
+}
+
+// deleteCustomAsset replaced by deleteAnyAsset above
+
+// ── Staff tab switcher ──
+function switchStaffTab(tab) {
+  ['requests','suggestions','assets'].forEach(t => {
+    document.getElementById('stab-'+t).classList.toggle('active', t === tab);
+    document.getElementById('staffpanel-'+t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'suggestions') renderSuggestionsList();
+  if (tab === 'assets')      renderCustomAssetsList();
+}
+
+function updateSuggestionsBadge() {
+  const count = SUGGESTIONS.filter(s => s.status === 'Pending').length;
+  const badge = document.getElementById('suggestions-badge');
+  if (!badge) return;
+  badge.textContent = count;
+  badge.style.display = count > 0 ? 'inline' : 'none';
+}
+
+function updateAssetCountLabel() {
+  const total = allAssets().length;
+  const el = document.getElementById('asset-count-label');
+  if (el) el.textContent = 'All ' + total + ' municipal assets — buildings, parks, infrastructure & protected areas';
+}
+
+// ════════════════════════════════════════════════════════
+//  INIT — connect to Supabase then render
+// ════════════════════════════════════════════════════════
+
+
+// ── Apply staff-saved order & suppression list on boot ──
+function applyAssetOrderAndSuppression() {
+  // 1. Apply suppressed built-ins
+  let suppressed = [];
+  try { suppressed = JSON.parse(localStorage.getItem('si_suppressed_assets') || '[]'); } catch(e){}
+  for (let i = ASSETS.length - 1; i >= 0; i--) {
+    if (suppressed.includes(ASSETS[i].id)) ASSETS.splice(i, 1);
+  }
+  // 2. Apply saved order for built-ins
+  let savedOrder = [];
+  try { savedOrder = JSON.parse(localStorage.getItem('si_asset_order') || '[]'); } catch(e){}
+  if (savedOrder.length) {
+    const map = Object.fromEntries(ASSETS.map(a => [a.id, a]));
+    const reordered = savedOrder.map(id => map[id]).filter(Boolean);
+    // Add any built-ins not in savedOrder at the end (newly added defaults)
+    const ordered_ids = new Set(savedOrder);
+    ASSETS.forEach(a => { if (!ordered_ids.has(a.id)) reordered.push(a); });
+    ASSETS.length = 0;
+    reordered.forEach(a => ASSETS.push(a));
+  }
+}
+
+async function initApp() {
+  const loader = document.getElementById('app-loading');
+  const errEl  = document.getElementById('loading-error');
+  try {
+    await loadAllData();
+    applyAssetOrderAndSuppression();
+    loader.style.opacity = '0';
+    setTimeout(() => loader.style.display = 'none', 400);
+    populateAssetSelect();
+    renderAssets();
+    updatePendingBadge();
+    updateSuggestionsBadge();
+    updateAssetCountLabel();
+    subscribeRealtime();
+  } catch(e) {
+    console.error('Init failed:', e);
+    errEl.style.display = 'block';
+    errEl.innerHTML = '<strong>⚠ Database connection error</strong><br>' + e.message +
+      '<br><br><small>Check your Supabase tables are created and policies are set.</small>';
+  }
+}
+initApp();
+</script>
+</body>
+</html>
